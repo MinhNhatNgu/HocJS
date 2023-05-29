@@ -158,3 +158,6 @@ var totalCost = languages.myReduce(function(total,language, index, origin) {
 	return total + language.cost;
 },0)
 console.log(totalCost);
+
+
+//test git
