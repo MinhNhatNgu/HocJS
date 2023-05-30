@@ -2,7 +2,7 @@ var languages = [
 	{
 		id : 1,
 		name : 'js',
-		cost : 100
+		cost : 200
 	},
 	{
 		id : 2,
@@ -12,7 +12,7 @@ var languages = [
 	{
 		id : 3,
 		name : 'java',
-		cost : 200
+		cost : 500
 	},
 	{
 		id : 4,
@@ -24,9 +24,11 @@ var languages = [
 
 // forEach
 Array.prototype.myForEach = function(callback) {
-    for(var i=0; i<this.length; i++) {
-        callback(this[i],i);
-    }
+	for(var index in this) {
+		if(this.hasOwnProperty(index)) {
+			callback(this[index], index, this);
+		}
+	}
 }
 
 languages.myForEach(function (language,index) {
@@ -37,18 +39,18 @@ languages.myForEach(function (language,index) {
 
 // every
 Array.prototype.myEvery = function(callback) {
-    var result = true;
-    for(var i=0; i<this.length; i++) {
-        result = result && callback(this[i],i);
-        if(result===false) {
-            break;
+    for(var index in this) {
+        if(this.hasOwnProperty(index)) {
+            if(!callback(this[index],index,this)) {
+                return false;
+            }
         }
     }
-    return result;
+    return true;
 }
 
 var result = languages.myEvery( function(language,index) {
-    return language.cost === 0;
+    return language.cost > 100;
 })
 console.log(result);
 
@@ -56,18 +58,18 @@ console.log(result);
 
 // some
 Array.prototype.mySome = function(callback) {
-    var result = false;
-    for(var i=0; i<this.length; i++) {
-        result = result || callback(this[i],i);
-        if(result===true) {
-            break;
+    for(var index in this) {
+        if(this.hasOwnProperty(index)) {
+            if(callback(this[index],index,this)) {
+                return true;
+            }
         }
     }
-    return result;
+    return false;
 }
 
 var result2 = languages.mySome( function( language, index ){
-	return language.cost === 0;
+	return language.cost > 300;
 } )
 console.log(result2);
 
@@ -75,9 +77,11 @@ console.log(result2);
 
 //find 
 Array.prototype.myFind = function(callback) {
-    for(var i=0; i<this.length; i++) {
-        if(callback(this[i],i)) {
-            return this[i];
+    for(var index in this) {
+        if(this.hasOwnProperty(index)) {
+            if(callback(this[index],index,this)) {
+                return this[index];
+            }
         }
     }
     return undefined;
@@ -93,9 +97,9 @@ console.log(result3);
 //filter
 Array.prototype.myFilter = function(callback) {
     var result = [];
-    for(var i=0; i<this.length; i++) {
-        if(callback(this[i],i)) {
-            result.push(this[i]);
+    for(var index in this) {
+        if(this.hasOwnProperty(index) && callback(this[index],index,this)) {
+            result.push(this[index]);
         }
     }
     return result;
@@ -111,8 +115,10 @@ console.log(result4);
 //map
 Array.prototype.myMap = function(callback) {
     var result = [];
-    for(var i=0; i<this.length; i++) {
-        result.push(callback(this[i],i,this));
+    for(var index in this) {
+        if(this.hasOwnProperty(index)) {
+            result.push(callback(this[index],index,this));
+        } 
     }
     return result;
 }
@@ -132,20 +138,17 @@ console.log(result5);
 
 
 //reduce
-Array.prototype.myReduce = function(callback,initialValue) {
-    var accumulator=initialValue;
-    var result;
+Array.prototype.myReduce = function(callback,result) {
     var i=0;
     if(arguments.length<2) {
-        accumulator=this[0];
+        var result = this[0];
         i++;
     }
 
     for(; i<this.length; i++) {
-        result = callback(accumulator,this[i],i,this);
-        accumulator = result;
+        result = callback(result,this[i],i,this);
     }
-    return accumulator;
+    return result;
 }
 
 var totalCost = languages.myReduce(function(total,language, index, origin) {
